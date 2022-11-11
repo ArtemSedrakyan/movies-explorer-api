@@ -11,6 +11,8 @@ const { loginValidation, createUserValidation } = require('../middlewares/valida
 
 const NotFoundError = require('../errors/NotFoundError');
 
+const { NOT_FOUND_PATH_MESSAGE } = require('../utils/constants');
+
 router.post('/signup', createUserValidation, createUser);
 router.post('/signin', loginValidation, login);
 
@@ -21,7 +23,7 @@ router.use('/movies', movieRouter);
 router.use('/signout', signOut);
 
 router.use((req, res, next) => {
-  next(new NotFoundError('Маршрут не найден'));
+  next(new NotFoundError(NOT_FOUND_PATH_MESSAGE));
 });
 
 module.exports = router;

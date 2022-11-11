@@ -12,7 +12,8 @@ const {
 } = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  const ownerId = req.user._id;
+  Movie.find({ owner: ownerId })
     .then((movies) => res.send(movies))
     .catch((err) => {
       next(err);
@@ -20,25 +21,7 @@ module.exports.getMovies = (req, res, next) => {
 };
 
 module.exports.createMovie = (req, res, next) => {
-  const {
-    country, director, duration, year, description, image,
-    trailerLink, thumbnail, movieId, nameRU, nameEN,
-  } = req.body;
-  const owner = req.user._id;
-  Movie.create({
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    thumbnail,
-    movieId,
-    nameRU,
-    nameEN,
-    owner,
-  })
+  Movie.create({ ...req.body, owner: req.user._id })
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {

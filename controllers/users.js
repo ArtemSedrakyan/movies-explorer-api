@@ -5,7 +5,6 @@ const User = require('../models/user');
 
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
-const NotAuthorizedError = require('../errors/NotAuthorizedError');
 const UserConflictError = require('../errors/UserConflictError');
 
 const {
@@ -13,7 +12,6 @@ const {
   CAST_ERROR_MESSAGE,
   INVALID_DATA_MESSAGE,
   USER_CONFLICT_MESSAGE,
-  UNAUTHORIZED_USER_MESSAGE,
 } = require('../utils/constants');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -29,7 +27,7 @@ module.exports.createUser = (req, res, next) => {
       _id: user._id, email, name,
     }))
     .catch((err) => {
-      if (err.cose === 11000) {
+      if (err.code === 11000) {
         next(new UserConflictError(USER_CONFLICT_MESSAGE));
       } else if (err.name === 'ValidationError') {
         next(new BadRequestError(INVALID_DATA_MESSAGE));
@@ -57,9 +55,7 @@ module.exports.login = (req, res, next) => {
 
       res.send({ token });
     })
-    .catch(() => {
-      next(new NotAuthorizedError(UNAUTHORIZED_USER_MESSAGE));
-    });
+    .catch(next);
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
@@ -85,7 +81,9 @@ module.exports.updateUserInfo = (req, res, next) => {
   )
     .then((user) => res.send({ email: user.email, name: user.name }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        next(new UserConflictError(USER_CONFLICT_MESSAGE));
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError(INVALID_DATA_MESSAGE));
       } else {
         next(err);

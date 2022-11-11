@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(
       token,
-      NODE_ENV === 'production' ? JWT_SECRET : 'dev-scret',
+      NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
     );
   } catch (err) {
     throw new NotAuthorizedError(UNAUTHORIZED_USER_MESSAGE);
